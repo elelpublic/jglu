@@ -56,28 +56,9 @@
         <dependency org="org.apache.logging.log4j" name="log4j-slf4j2-impl" rev="${log4j.version}"/>
 
 
-        <!--
-        https://mvnrepository.com/artifact/io.lettuce/lettuce-core
+        <!-- https://mvnrepository.com/artifact/redis.clients/jedis -->
+        <dependency org="redis.clients" name="jedis" rev="${jedis.version}"/>
 
-        The redis client
-
-        -->
-        <dependency org="io.lettuce" name="lettuce-core" rev="${lettuce.version}" >
-            <exclude module="netty-tcnative" />  <!-- not available for macos arm -->
-        </dependency>
-        <!--
-        https://mvnrepository.com/artifact/org.reactivestreams/reactive-streams
-
-        A dependency of lettuce
-        <dependency org="org.reactivestreams" name="reactive-streams" rev="1.0.4"/>
-        -->
-
-        <!--
-        https://mvnrepository.com/artifact/io.projectreactor/reactor-core
-
-        A dependency of lettuce
-        <dependency org="io.projectreactor" name="reactor-core" rev="3.5.3"/>
-        -->
 
         <!--
         https://mvnrepository.com/artifact/com.github.kstyrc/embedded-redis

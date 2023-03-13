@@ -1,11 +1,12 @@
 package com.infodesire.jglu;
 
 import com.infodesire.jglu.util.SocketUtils;
-import io.lettuce.core.RedisClient;
-import io.lettuce.core.api.StatefulRedisConnection;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPooled;
+import redis.clients.jedis.UnifiedJedis;
 import redis.embedded.RedisServer;
 
 import static org.junit.Assert.*;
@@ -13,8 +14,7 @@ import static org.junit.Assert.*;
 public class RedisBasedCacheTest {
 
     private RedisServer redisServer;
-    private StatefulRedisConnection connection;
-    private RedisClient redisClient;
+    private UnifiedJedis jedis;
     private RedisBasedCache cache;
 
     @Before
@@ -22,15 +22,13 @@ public class RedisBasedCacheTest {
         int port = SocketUtils.getFreePort();
         redisServer = new RedisServer( port );
         redisServer.start();
-        redisClient = RedisClient.create( "redis://localhost:" + port + "/0" );
-        connection = redisClient.connect();
-        cache = new RedisBasedCache( connection, "main." );
+        jedis = new JedisPooled( "localhost", port );
+        cache = new RedisBasedCache( jedis, "main." );
     }
 
     @After
     public void tearDown() throws Exception {
-        connection.close();
-        redisClient.shutdown();
+        jedis.close();
         redisServer.stop();
     }
 

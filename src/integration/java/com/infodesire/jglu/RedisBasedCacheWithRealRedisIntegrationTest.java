@@ -1,44 +1,39 @@
 package com.infodesire.jglu;
 
-import io.lettuce.core.RedisClient;
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.sync.RedisCommands;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import redis.clients.jedis.JedisPooled;
+import redis.clients.jedis.UnifiedJedis;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.*;
 
 public class RedisBasedCacheWithRealRedisIntegrationTest {
 
     private static String prefix;
-    private static RedisClient redisClient;
-    private static StatefulRedisConnection<String, String> connection;
+    private static UnifiedJedis jedis;
 
 
     @BeforeClass
     public static void beforeClass() {
         prefix = "RedisBasedCacheWithRealRedisIntegrationTest." + System.currentTimeMillis() + ".";
-        redisClient = RedisClient.create("redis://localhost:6379/0");
-        connection = redisClient.connect();
+        jedis = new JedisPooled("localhost", 6379);
     }
     
     @AfterClass
     public static void afterClass() {
-        RedisCommands<String, String> command = connection.sync();
-        for( String key : command.keys( prefix + "*" ) ) {
-            command.del( key );
+        for( String key : jedis.keys( prefix + "*" ) ) {
+            jedis.del( key );
         }
-        connection.close();
-        redisClient.shutdown();
+        jedis.close();
     }
 
     @Test
     public void testCaching() {
 
-        RedisBasedCache redisCache = new RedisBasedCache( connection, prefix );
+        RedisBasedCache redisCache = new RedisBasedCache( jedis, prefix );
         assertFalse( redisCache.has( "value1" ) );
 
         redisCache.put( "value1", "First value!" );

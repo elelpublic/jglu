@@ -1,7 +1,6 @@
 package com.infodesire.jglu;
 
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.sync.RedisCommands;
+import redis.clients.jedis.UnifiedJedis;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,7 +10,7 @@ import java.util.stream.Collectors;
  */
 public class RedisBasedCache {
 
-    private final StatefulRedisConnection connection;
+    private final UnifiedJedis jedis;
     private final String prefix;
 
     /**
@@ -21,29 +20,25 @@ public class RedisBasedCache {
      * @param prefix Optional prefix to every key of this cache
      *
      */
-    public RedisBasedCache( StatefulRedisConnection connection, String prefix ) {
-        this.connection = connection;
+    public RedisBasedCache( UnifiedJedis connection, String prefix ) {
+        this.jedis = connection;
         this.prefix = prefix;
     }
 
     public void put( String key, String value ) {
-        RedisCommands syncCommands = connection.sync();
-        syncCommands.set( makeKey( key ), value );
+        jedis.set( makeKey( key ), value );
     }
 
     public String get( String key ) {
-        RedisCommands syncCommands = connection.sync();
-        return (String) syncCommands.get( makeKey( key ) );
+        return (String) jedis.get( makeKey( key ) );
     }
 
     public boolean has( String key ) {
-        RedisCommands syncCommands = connection.sync();
-        return syncCommands.exists( makeKey( key ) ) == 1;
+        return jedis.exists( makeKey( key ) );
     }
 
     public void remove( String key ) {
-        RedisCommands syncCommands = connection.sync();
-        syncCommands.del( makeKey( key ) );
+        jedis.del( makeKey( key ) );
     }
 
     /**
@@ -62,8 +57,7 @@ public class RedisBasedCache {
      *
      */
     public List<String> find( String pattern ) {
-        RedisCommands syncCommands = connection.sync();
-        return (List<String>) syncCommands.keys( makeKey( pattern ) )
+        return (List<String>) jedis.keys( makeKey( pattern ) )
                 .stream()
                 .map( key -> removePrefix( (String) key ) )
                 .collect( Collectors.toList() );

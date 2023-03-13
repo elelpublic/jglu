@@ -1,7 +1,7 @@
 package com.infodesire.jglu.busdata;
 
 import com.infodesire.jglu.RedisUtils;
-import io.lettuce.core.api.StatefulRedisConnection;
+import redis.clients.jedis.UnifiedJedis;
 
 import java.text.ParseException;
 import java.util.HashMap;
@@ -16,14 +16,14 @@ public class BusUtils {
     /**
      * Store a business object in redis
      *
-     * @param connection Redis connection
+     * @param jedis Redis connection
      * @param object Business object
      *
      */
-    public static void set( StatefulRedisConnection<String, String> connection,
+    public static void set( UnifiedJedis jedis,
                             BusObject object ) {
 
-        RedisUtils.setMap( connection, object.getKey(), makeMap( object ) );
+        RedisUtils.setMap( jedis, object.getKey(), makeMap( object ) );
 
     }
 
@@ -45,17 +45,17 @@ public class BusUtils {
     /**
      * Load a business object from redis
      *
-     * @param connection Redis connection
+     * @param jedis Redis connection
      * @param key Key of object in redis
      * @param template Template for objects of this type
      * @return Business object loaded from redis
      *
      */
-    public static BusObject get( StatefulRedisConnection<String, String> connection,
+    public static BusObject get( UnifiedJedis jedis,
                                  String key, BusTemplate template ) throws ParseException {
 
         BusObject object = new BusObject( key );
-        Map<String, String> map = RedisUtils.getMap( connection, key );
+        Map<String, String> map = RedisUtils.getMap( jedis, key );
         for( String fieldName : template ) {
             if( map.containsKey( fieldName ) ) {
                 BusValue value = new BusValue( template.getType( fieldName ),

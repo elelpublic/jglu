@@ -1,12 +1,10 @@
 package com.infodesire.jglu.pubsub;
 
-import io.lettuce.core.pubsub.RedisPubSubListener;
-
 /**
  * Base class for redis pubsub subscribers
  *
  */
-public class PubSubListenerAdapter implements RedisPubSubListener<String, String> {
+public class PubSubListenerAdapter { // implements RedisPubSubListener<String, String> {
 
     private final PubSubListener listener;
 

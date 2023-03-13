@@ -1,11 +1,6 @@
 package com.infodesire.jglu;
 
 import com.infodesire.jglu.util.CliUtils;
-import io.lettuce.core.KeyScanCursor;
-import io.lettuce.core.RedisClient;
-import io.lettuce.core.ScanArgs;
-import io.lettuce.core.ScanCursor;
-import io.lettuce.core.api.StatefulRedisConnection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -16,6 +11,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import redis.clients.jedis.JedisPooled;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,6 +20,7 @@ import java.net.InetAddress;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Main {
 
@@ -77,8 +74,7 @@ public class Main {
 
   private static void interactiveShell() throws IOException {
 
-    RedisClient redisClient = RedisClient.create( "redis://localhost:6379/0" );
-    StatefulRedisConnection<String, String> connection = redisClient.connect();
+    JedisPooled jedis = new JedisPooled("localhost", 6379);
 
     try {
 
@@ -97,14 +93,14 @@ public class Main {
 
         print( "" );
         print( "(? for help)" );
-        print( "jglu> " );
+        print( "jglu2> " );
 
         String line = in.readLine().trim();
         Deque<String> input = CliUtils.parseCommandLine( line );
 
         print( "" );
         time0 = System.currentTimeMillis();
-        List<String> keys;
+        Set<String> keys;
 
         try {
           
@@ -128,7 +124,7 @@ public class Main {
                 String key = input.pop();
                 if( !input.isEmpty() ) {
                   String value = input.pop();
-                  connection.sync().set( key, value );
+                  jedis.set( key, value );
                   ok = true;
                 }
               }
@@ -144,7 +140,7 @@ public class Main {
             else if( command.equals( "get" ) ) {
 
               if( !input.isEmpty() ) {
-                print( line + ": " + connection.sync().get( input.pop() ) );
+                print( line + ": " + jedis.get( input.pop() ) );
               }
               else {
                 showCommands( "Syntax error in line: " + line );
@@ -154,7 +150,7 @@ public class Main {
             else if( command.equals( "hgetall" ) ) {
 
               if( !input.isEmpty() ) {
-                Map<String, String> fields = connection.sync().hgetall( input.pop() );
+                Map<String, String> fields = jedis.hgetAll( input.pop() );
                 for( Map.Entry<String, String> entry : fields.entrySet() ) {
                   print( entry.getKey() + ": " + entry.getKey() );
                 }
@@ -168,7 +164,7 @@ public class Main {
             else if( command.equals( "del" ) ) {
 
               if( !input.isEmpty() ) {
-                Long count = connection.sync().del( input.pop() );
+                Long count = jedis.del( input.pop() );
                 print( "Deleted " + count + " keys" );
               }
               else {
@@ -179,7 +175,7 @@ public class Main {
             else if( command.equals( "has" ) ) {
 
               if( !input.isEmpty() ) {
-                print( line + " exists: " + connection.sync().exists( input.pop() )  );
+                print( line + " exists: " + jedis.exists( input.pop() )  );
               }
               else {
                 showCommands( "Syntax error in line: " + line );
@@ -189,7 +185,7 @@ public class Main {
             else if( command.equals( "keys" ) ) {
 
               if( !input.isEmpty() ) {
-                keys = connection.sync().keys( input.pop() );
+                keys = jedis.keys( input.pop() );
                 int index = 1;
                 for( String key : keys ) {
                   print( "#" + index + ": " + key );
@@ -202,44 +198,44 @@ public class Main {
               }
 
             }
-            else if( command.equals( "scan" )
-                    || command.equals( "scancount" ) ) {
-
-              boolean quiet = command.equals( "scancount" );
-
-              boolean ok = false;
-              if( !input.isEmpty() ) {
-                String cursor = input.pop();
-                if( !input.isEmpty() ) {
-                  String match = input.pop();
-                  ScanArgs scanArgs = new ScanArgs();
-                  scanArgs.match( match );
-                  if( !input.isEmpty() ) {
-                    scanArgs.limit( Long.parseLong( input.pop() ) );
-                  }
-                  ScanCursor scanCursor = new ScanCursor( cursor, false );
-                  KeyScanCursor<String> c = connection.sync().scan( scanCursor, scanArgs );
-                  int index = 1;
-                  List<String> keysScanned = c.getKeys();
-                  for( String keyScanned : keysScanned ) {
-                    if( !quiet ) {
-                      print( "#" + index + ": " + keyScanned );
-                    }
-                    index++;
-                  }
-                  print( "keys scanned: " + keysScanned.size() );
-                }
-
-              }
-              else {
-                showCommands( "Syntax error in line: " + line );
-              }
-
-            }
+//            else if( command.equals( "scan" )
+//                    || command.equals( "scancount" ) ) {
+//
+//              boolean quiet = command.equals( "scancount" );
+//
+//              boolean ok = false;
+//              if( !input.isEmpty() ) {
+//                String cursor = input.pop();
+//                if( !input.isEmpty() ) {
+//                  String match = input.pop();
+//                  ScanArgs scanArgs = new ScanArgs();
+//                  scanArgs.match( match );
+//                  if( !input.isEmpty() ) {
+//                    scanArgs.limit( Long.parseLong( input.pop() ) );
+//                  }
+//                  ScanCursor scanCursor = new ScanCursor( cursor, false );
+//                  KeyScanCursor<String> c = connection.sync().scan( scanCursor, scanArgs );
+//                  int index = 1;
+//                  List<String> keysScanned = c.getKeys();
+//                  for( String keyScanned : keysScanned ) {
+//                    if( !quiet ) {
+//                      print( "#" + index + ": " + keyScanned );
+//                    }
+//                    index++;
+//                  }
+//                  print( "keys scanned: " + keysScanned.size() );
+//                }
+//
+//              }
+//              else {
+//                showCommands( "Syntax error in line: " + line );
+//              }
+//
+//            }
             else if( command.equals( "count" ) ) {
 
               if( !input.isEmpty() ) {
-                int count = connection.sync().keys( input.pop() ).size();
+                int count = jedis.keys( input.pop() ).size();
                 print( "" + count );
               }
               else {
@@ -250,7 +246,7 @@ public class Main {
             else if( command.equals( "delall" ) ) {
 
               if( !input.isEmpty() ) {
-                keys = connection.sync().keys( input.pop() );
+                keys = jedis.keys( input.pop() );
                 int total = keys.size();
                 print( "Found " + total );
                 print( "To delete them all enter DELETE_THEM_ALL!" );
@@ -270,7 +266,7 @@ public class Main {
                       t0 = t1;
                       c0 = index;
                     }
-                    connection.sync().del( key );
+                    jedis.del( key );
                     index++;
                   }
                   print( "Deleted " + keys.size() + " keys." );
@@ -299,12 +295,7 @@ public class Main {
 
     }
     finally {
-      if( connection != null ) {
-        connection.close();
-      }
-      if( redisClient != null ) {
-        redisClient.shutdown();
-      }
+      jedis.close();
     }
 
   }
@@ -332,8 +323,8 @@ public class Main {
     print( "hgetall key ......................... get all fields and values of a map with this pattern" );
     print( "has key ............................. test if key exists" );
     print( "keys pattern ........................ find keys matching this pattern" );
-    print( "scan cursor pattern [count] ......... scan keys matching this pattern (use 0 for initial cursor)" );
-    print( "scancount cursor pattern [count] .... scan keys matching this pattern (use 0 for initial cursor)" );
+//    print( "scan cursor pattern [count] ......... scan keys matching this pattern (use 0 for initial cursor)" );
+//    print( "scancount cursor pattern [count] .... scan keys matching this pattern (use 0 for initial cursor)" );
     print( "count pattern ....................... count keys matching this pattern" );
     print( "delall pattern ...................... delete keys matching this pattern" );
     print( "" );

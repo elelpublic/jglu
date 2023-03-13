@@ -1,46 +1,36 @@
 package com.infodesire.jglu;
 
-import io.lettuce.core.RedisClient;
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.sync.RedisCommands;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import redis.clients.jedis.JedisPooled;
+import redis.clients.jedis.UnifiedJedis;
 
 public class RedisPerformanceEvaluationTest {
 
     private static String prefix;
-    private static RedisClient redisClient;
-    private static StatefulRedisConnection<String, String> connection;
+    private static UnifiedJedis jedis;
 
 
     @BeforeClass
     public static void beforeClass() {
         prefix = "RedisPerformanceEvaluationTest." + System.currentTimeMillis() + ".";
-        redisClient = RedisClient.create("redis://localhost:6379/0");
-        connection = redisClient.connect();
+        jedis = new JedisPooled("localhost", 6379);
     }
     
     @AfterClass
     public static void afterClass() {
-        RedisCommands<String, String> command = connection.sync();
-        for( String key : command.keys( prefix + "*" ) ) {
-            command.del( key );
-        }
-        connection.close();
-        redisClient.shutdown();
+        jedis.close();
     }
 
     @Test
     public void testBiggerData() {
 
-        RedisCommands syncCommands = connection.sync();
-
         long t0 = System.currentTimeMillis();
         long c0 = 0;
 
         for( int i = 0; i < 100000; i++ ) {
-            syncCommands.set( prefix + i, "" + i );
+            jedis.set( prefix + i, "" + i );
             if( i % 1000 == 0 ) {
                 long t1 = System.currentTimeMillis();
                 long time = t1 - t0;

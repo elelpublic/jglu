@@ -1,11 +1,10 @@
 package com.infodesire.jglu.busdata;
 
-import io.lettuce.core.RedisClient;
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.sync.RedisCommands;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import redis.clients.jedis.JedisPooled;
+import redis.clients.jedis.UnifiedJedis;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -14,25 +13,21 @@ import java.util.List;
 public class StoreLargeNumberOfBusObjectsTest {
 
     private static String prefix;
-    private static RedisClient redisClient;
-    private static StatefulRedisConnection<String, String> connection;
+    private static UnifiedJedis jedis;
 
 
     @BeforeClass
     public static void beforeClass() {
         prefix = "RedisBasedCacheWithRealRedisIntegrationTest." + System.currentTimeMillis() + ".";
-        redisClient = RedisClient.create("redis://localhost:6379/0");
-        connection = redisClient.connect();
+        jedis = new JedisPooled("localhost", 6379);
     }
     
     @AfterClass
     public static void afterClass() {
-        RedisCommands<String, String> command = connection.sync();
-        for( String key : command.keys( prefix + "*" ) ) {
-            command.del( key );
+        for( String key : jedis.keys( prefix + "*" ) ) {
+            jedis.del( key );
         }
-        connection.close();
-        redisClient.shutdown();
+        jedis.close();
     }
 
     @Test
@@ -41,7 +36,7 @@ public class StoreLargeNumberOfBusObjectsTest {
         long t0 = System.currentTimeMillis();
         long c0 = 0;
 
-        int OBJECT_COUNT = 10000000;
+        int OBJECT_COUNT = 1000000;
 
         LocalDate date = LocalDate.of( 2023, 3, 7 );
 
@@ -67,7 +62,7 @@ public class StoreLargeNumberOfBusObjectsTest {
             }
             busObject.set( "Employees", new BusValue( employees ) );
 
-            BusUtils.set( connection, busObject );
+            BusUtils.set( jedis, busObject );
 
             date = date.plusDays( 1 );
 

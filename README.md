@@ -1,9 +1,9 @@
-# jglu
+# jglu2
 
-The glue between JVMs
+The glue between JVMs (based on jedis instead of lettuce)
 
 Connect multiple JVMs together with easy to
 use services.
 
-Based on redis and lettuce.
+
 

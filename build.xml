@@ -13,15 +13,11 @@
             <pathelement location="lib/log4j-core-${log4j.version}.jar" />
             <pathelement location="lib/slf4j-api-${slf4j.version}.jar" />
             <pathelement location="lib/log4j-slf4j2-impl-${log4j.version}.jar" />
-            <pathelement location="lib/lettuce-core-${lettuce.version}.jar" />
-            <pathelement location="lib/reactive-streams-${reactive-streams.version}.jar" />
-            <pathelement location="lib/reactor-core-${reactor-core.version}.jar" />
-            <pathelement location="lib/netty-transport-${netty.version}.jar" />
-            <pathelement location="lib/netty-common-${netty.version}.jar" />
-            <pathelement location="lib/netty-handler-${netty.version}.jar" />
-            <pathelement location="lib/netty-resolver-${netty.version}.jar" />
-            <pathelement location="lib/netty-buffer-${netty.version}.jar" />
-            <pathelement location="lib/netty-codec-${netty.version}.jar" />
+
+            <pathelement location="lib/jedis-${jedis.version}.jar" />
+            <pathelement location="lib/commons-pool2-${commons-pool2.version}.jar" />
+            <pathelement location="lib/gson-${gson.version}.jar" />
+
             <pathelement location="lib/embedded-redis-${embedded-redis.version}.jar" />
             <pathelement location="lib/guava-${guava.version}.jar" />
         </path>

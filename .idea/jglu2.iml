@@ -73,15 +73,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/netty-transport-4.1.89.Final.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
@@ -92,7 +83,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="lettuce" level="project" />
     <orderEntry type="library" name="embedded-redis" level="project" />
+    <orderEntry type="library" name="jedis" level="project" />
   </component>
 </module>
