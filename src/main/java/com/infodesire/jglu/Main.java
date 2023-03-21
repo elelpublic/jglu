@@ -152,7 +152,7 @@ public class Main {
               if( !input.isEmpty() ) {
                 Map<String, String> fields = jedis.hgetAll( input.pop() );
                 for( Map.Entry<String, String> entry : fields.entrySet() ) {
-                  print( entry.getKey() + ": " + entry.getKey() );
+                  print( entry.getKey() + ": " + entry.getValue() );
                 }
               }
               else {
