@@ -66,6 +66,8 @@
                 srcdir="src/main/java"
                 destdir="target/classes"
                 debug="true"
+                source="${java.language.version}"
+                target="${java.language.version}"
         >
             <src path="src/main/java" />
             <classpath refid="thirdparty.jars"/>
@@ -75,6 +77,8 @@
                 srcdir="src/test/java"
                 destdir="target/test-classes"
                 debug="true"
+                source="${java.language.version}"
+                target="${java.language.version}"
             >
             <classpath>
                 <pathelement path="target/classes"/>
@@ -87,6 +91,8 @@
                 srcdir="src/integration/java"
                 destdir="target/integration-classes"
                 debug="true"
+                source="${java.language.version}"
+                target="${java.language.version}"
         >
             <classpath>
                 <pathelement path="target/classes"/>
