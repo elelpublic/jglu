@@ -93,7 +93,7 @@ public class Main {
 
         print( "" );
         print( "(? for help)" );
-        print( "jglu2> " );
+        print( "jglu> " );
 
         String line = in.readLine().trim();
         Deque<String> input = CliUtils.parseCommandLine( line );

@@ -1,4 +1,4 @@
-# jglu2
+# jglu
 
 The glue between JVMs (based on jedis instead of lettuce)
 
