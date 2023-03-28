@@ -31,4 +31,8 @@ public class RowDefinition {
         return columns.size();
     }
 
+    public Iterable<ColumnDefinition> getColumns() {
+        return columns;
+    }
+
 }
